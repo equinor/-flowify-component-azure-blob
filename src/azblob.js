@@ -1,5 +1,5 @@
 import readdirp from 'readdirp';
-import { mkdirSync ,existsSync, statSync} from 'fs'
+import { mkdirSync, existsSync, statSync } from 'fs'
 import * as path from 'path';
 import * as log from './log.js'
 
@@ -7,18 +7,18 @@ async function azListBlobs(containerClient, fileFilter, dirFilter) {
 
     let blobList = [];
     for await (const blob of containerClient.listBlobsFlat()) {
-      blobList.push(blob.name);
+        blobList.push(blob.name);
     }
     if (blobList.length === 0) {
         throw new Error(`Container ${containerClient.containerName} has no file`);
     } else {
-        if (typeof(dirFilter)==='string') {
+        if (typeof (dirFilter) === 'string') {
             log.info(`Filter files under directory ${dirFilter}`);
-            dirFilter = dirFilter.replace(path.win32.sep,path.posix.sep);
-            dirFilter = dirFilter.endsWith(path.posix.sep) ? dirFilter.slice(0,-1) : dirFilter;
+            dirFilter = dirFilter.replace(path.win32.sep, path.posix.sep);
+            dirFilter = dirFilter.endsWith(path.posix.sep) ? dirFilter.slice(0, -1) : dirFilter;
             blobList = blobList.filter(blobName => blobName.toLowerCase().startsWith(dirFilter.toLowerCase()));
         };
-        if (typeof(fileFilter)==='string') {
+        if (typeof (fileFilter) === 'string') {
             log.info(`Filter files containing ${fileFilter}`)
             let dirLength = dirFilter ? dirFilter.length : 0;
             blobList = blobList.filter(blob => blob.slice(dirLength).toLowerCase().includes(fileFilter.toLowerCase()));
@@ -36,15 +36,15 @@ async function azDownloadBlobs(containerClient, downloadList, downloadPath) {
     downloadPath = path.normalize(downloadPath);
     const downloadPathSep = downloadPath.endsWith(path.sep) ? downloadPath : `${downloadPath}${path.sep}`;
     await Promise.all(downloadList.map(async (file) => {
-        if (file.includes(path.posix.sep)){
+        if (file.includes(path.posix.sep)) {
             //create dir to keep dir structure
             let lastSep = file.lastIndexOf(path.posix.sep);
-            let dir = file.slice(0,lastSep);
+            let dir = file.slice(0, lastSep);
             dir = `${downloadPathSep}${dir}`
-     
-            if(!existsSync(dir)){
+
+            if (!existsSync(dir)) {
                 mkdirSync(dir, { recursive: true });
-            }            
+            }
         }
         const downloadFilePath = path.normalize(`${downloadPathSep}${file}`);
 
@@ -57,17 +57,29 @@ async function azDownloadBlobs(containerClient, downloadList, downloadPath) {
 async function listFiles(path, fileFilters) {
     const isFile = statSync(path).isFile();
     let filesToUpload
-    if (!isFile){
+    if (!isFile) {
         const config = fileFilters ? { type: 'files', fileFilter: fileFilters } : { type: 'files' };
         filesToUpload = await readdirp.promise(path, config);
     } else {
-        filesToUpload = [path]
+        if (path.split(path.sep).length > 1) {
+            filesToUpload = [{
+                basename: path.split(path.sep)[-1],
+                path: path.split(path.sep)[-1],
+                fullPath: path
+            }]
+        } else {
+            filesToUpload = [{
+                basename: path,
+                path: path,
+                fullPath: path
+            }]
+        }
     }
     return filesToUpload
 }
 
 async function azUploadBlobs(containerClient, filesPath, uploadPath) {
-    const dirToUploadPosix = filesPath.replace(path.win32.sep,path.posix.sep);
+    const dirToUploadPosix = filesPath.replace(path.win32.sep, path.posix.sep);
     //const dirToUpload = dirToUploadPosix.endsWith(path.posix.sep) ? dirToUploadPosix.slice(0,-1) : dirToUploadPosix;
     const filesToUpload = await listFiles(dirToUploadPosix, null);
     console.log(filesToUpload.map(file => file.fullPath))
