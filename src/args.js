@@ -8,8 +8,11 @@ export function parse() {
       case 'auth_method':
         process.env.AUTH_METHOD = arg[1];
         break;
-      case 'bucket_name':
-        process.env.BUCKET_NAME = arg[1];
+      case 'container_name':
+        process.env.CONTAINER_NAME = arg[1];
+        break;
+      case 'account':
+        process.env.ACCOUNT = arg[1];
         break;
       case 'ops':
         process.env.OPS = arg[1];
@@ -17,8 +20,8 @@ export function parse() {
       case 'download_path':
         process.env.DOWNLOAD_PATH = arg[1];
         break;
-      case 'dir':
-        process.env.DIR = arg[1];
+      case 'dir_filter':
+        process.env.DIR_FILTER = arg[1];
         break;
       case 'file_filter':
         process.env.FILE_FILTER = arg[1];

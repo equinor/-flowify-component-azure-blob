@@ -8,13 +8,21 @@ Variables denoted with * can be set by run arguments by setting them as lowercas
 ## Common settings
 ```
 # Operation: upload or download *
-export OPS
+export OPS=download
 
-# Google Application Credentials. String
-export GOOGLE_APPLICATION_CREDENTIALS
+# Authentication method *
+export AUTH_METHOD=app
 
-# Googel bucket name *
-export BUCKET_NAME
+# Blob Container name *
+export CONTAINER_NAME
+
+# Storage account name *
+export ACCOUNT
+
+# Auth. The service principal should have list read and write permission (e.g. Storage Blob data Contributor role)
+export CLIENT_ID
+export CLIENT_SECRET
+export TENANT_ID
 ```
 ## Download
 ```
@@ -23,7 +31,7 @@ export DOWNLOAD_PATH
 
 # Only files under this directory in the Blob container (Optional) *
 # If downloading one specific file, set it to the file path. Leave FILE_FILTER empty.
-export DIR 
+export DIR_FILTER
 
 # Only files containing this string (Optional) *
 export FILE_FILTER 

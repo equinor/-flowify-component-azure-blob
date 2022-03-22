@@ -3,23 +3,25 @@ import { mkdirSync ,existsSync, statSync} from 'fs'
 import * as path from 'path';
 import * as log from './log.js'
 
-async function gcpListBlobs(bucket, fileFilter, dirFilter) {
+async function azListBlobs(containerClient, fileFilter, dirFilter) {
 
-    let [blobList, queryForPage2] =await bucket.getFiles();
-
+    let blobList = [];
+    for await (const blob of containerClient.listBlobsFlat()) {
+      blobList.push(blob.name);
+    }
     if (blobList.length === 0) {
-        throw new Error(`Bucket ${bucket.name} has no file`);
+        throw new Error(`Container ${containerClient.containerName} has no file`);
     } else {
         if (typeof(dirFilter)==='string') {
             log.info(`Filter files under directory ${dirFilter}`);
             dirFilter = dirFilter.replace(path.win32.sep,path.posix.sep);
             dirFilter = dirFilter.endsWith(path.posix.sep) ? dirFilter.slice(0,-1) : dirFilter;
-            blobList = blobList.filter(blobName => blobName.startsWith(dirFilter));
+            blobList = blobList.filter(blobName => blobName.toLowerCase().startsWith(dirFilter.toLowerCase()));
         };
         if (typeof(fileFilter)==='string') {
             log.info(`Filter files containing ${fileFilter}`)
             let dirLength = dirFilter ? dirFilter.length : 0;
-            blobList = blobList.filter(blob => blob.slice(dirLength).includes(fileFilter));
+            blobList = blobList.filter(blob => blob.slice(dirLength).toLowerCase().includes(fileFilter.toLowerCase()));
         };
         log.info(`Number of files to download ${blobList.length}`);
     }
@@ -29,7 +31,7 @@ async function gcpListBlobs(bucket, fileFilter, dirFilter) {
     return blobList;
 }
 
-async function gcpDownloadBlobs(bucket, downloadList, downloadPath) {
+async function azDownloadBlobs(containerClient, downloadList, downloadPath) {
 
     downloadPath = path.normalize(downloadPath);
     const downloadPathSep = downloadPath.endsWith(path.sep) ? downloadPath : `${downloadPath}${path.sep}`;
@@ -45,9 +47,9 @@ async function gcpDownloadBlobs(bucket, downloadList, downloadPath) {
             }            
         }
         const downloadFilePath = path.normalize(`${downloadPathSep}${file}`);
-        await bucket.file(file).download({
-            destination: downloadFilePath,
-          });
+
+        const blockClient = containerClient.getBlockBlobClient(file);
+        await blockClient.downloadToFile(downloadFilePath)
         log.info(`Downloaded ${file} to ${downloadPathSep}`);
     }));
     return
@@ -64,7 +66,7 @@ async function listFiles(path, fileFilters) {
     return filesToUpload
 }
 
-async function gcpUploadBlobs(bucket, filesPath, uploadPath) {
+async function azUploadBlobs(containerClient, filesPath, uploadPath) {
     const dirToUploadPosix = filesPath.replace(path.win32.sep,path.posix.sep);
     //const dirToUpload = dirToUploadPosix.endsWith(path.posix.sep) ? dirToUploadPosix.slice(0,-1) : dirToUploadPosix;
     const filesToUpload = await listFiles(dirToUploadPosix, null);
@@ -79,9 +81,9 @@ async function gcpUploadBlobs(bucket, filesPath, uploadPath) {
             if (uploadPathPosix) {
                 fullUploadFilePath = uploadPathPosix.endsWith(path.posix.sep) ? `${uploadPathPosix}${fullUploadFilePath}` : `${uploadPathPosix}${path.posix.sep}${fullUploadFilePath}`;
             };
-            await bucket.upload(file.fullPath, {
-                destination: fullUploadFilePath,
-              });
+            const blockClient = containerClient.getBlockBlobClient(fullUploadFilePath);
+            await blockClient.uploadFile(file.fullPath)
+
             log.info(`Uploaded ${file.basename} >>> ${fullUploadFilePath}`);
         }));
     }
@@ -102,4 +104,4 @@ async function gcpUploadBlobs(bucket, filesPath, uploadPath) {
 //     }
 //   });
 
-export { gcpListBlobs, gcpDownloadBlobs, gcpUploadBlobs }
+export { azListBlobs, azDownloadBlobs, azUploadBlobs }

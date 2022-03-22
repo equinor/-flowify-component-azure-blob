@@ -52,5 +52,5 @@ jobs:
           context: .
           push: true
           tags: |
-            auroradevacr.azurecr.io/flowify/flowify-componenet-google-bucket:${{ env.DOCKER_IMG_VERSION }}
-            auroradevacr.azurecr.io/flowify/flowify-componenet-google-bucket:${{ env.SHORT_SHA}}          
+            auroradevacr.azurecr.io/flowify/flowify-componenet-azure-blob:${{ env.DOCKER_IMG_VERSION }}
+            auroradevacr.azurecr.io/flowify/flowify-componenet-azure-blob:${{ env.SHORT_SHA}}          
