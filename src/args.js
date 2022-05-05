@@ -32,6 +32,8 @@ export function parse() {
       case 'upload_files':
         process.env.UPLOAD_FILES = arg[1];
         break;
+      case 'file_upload_name':
+        process.env.FILE_UPLOAD_NAME =arg[1];
       default:
     }
   }

@@ -93,6 +93,9 @@ async function azUploadBlobs(containerClient, filesPath, uploadPath) {
             if (uploadPathPosix) {
                 fullUploadFilePath = uploadPathPosix.endsWith(path.posix.sep) ? `${uploadPathPosix}${fullUploadFilePath}` : `${uploadPathPosix}${path.posix.sep}${fullUploadFilePath}`;
             };
+            if (process.env.FILE_UPLOAD_NAME && filesToUpload.length==1){
+                fullUploadFilePath = uploadPathPosix? `${uploadPathPosix}/${process.env.FILE_UPLOAD_NAME}` : process.env.FILE_UPLOAD_NAME
+            }
             const blockClient = containerClient.getBlockBlobClient(fullUploadFilePath);
             await blockClient.uploadFile(file.fullPath)
 

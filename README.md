@@ -45,6 +45,9 @@ export UPLOAD_PATH
 # Local directory of the files to upload *
 # If uploading one specific file, set it to the file path
 export UPLOAD_FILES
+
+# Rename upload file (Only when uploading a single file)*
+export FILE_UPLOAD_NAME
 ```
 
 ## Log level
