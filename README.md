@@ -1,6 +1,6 @@
 # flowify-component-azure-blob
 
-[Flowify](https://flowify-docs.equinor.com/) componenet for downloading files from Google Bucket
+[Flowify](https://flowify-docs.equinor.com/) componenet for downloading and uploading files from/to Azure Blob Storage
 
 Set the following environmental variables
 
