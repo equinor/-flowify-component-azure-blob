@@ -20,7 +20,7 @@
   "homepage": "https://github.com/equinor/flowify-component-azure-blob#readme",
   "dependencies": {
     "@azure/identity": "^2.0.4",
-    "@azure/storage-blob": "^12.9.0",
+    "@azure/storage-blob": "^12.10.0",
     "readdirp": "^3.6.0"
   },
   "devDependencies": {
