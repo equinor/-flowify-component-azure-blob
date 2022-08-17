@@ -1,0 +1,78 @@
+name: upload file to Azure Blob store
+modifiedBy: 
+uid: 
+version:
+  current: 0
+  previous:
+    uid: 00000000-0000-0000-0000-000000000000
+timestamp:
+inputs:
+  - name: CLIENT_ID
+    mediatype:
+      - env_secret
+    type: env_secret
+  - name: CLIENT_SECRET
+    mediatype:
+      - env_secret
+    type: env_secret
+  - name: TENANT_ID
+    mediatype:
+      - env_secret
+    type: env_secret
+  - name: file_to_upload
+    mediatype:
+      - file
+    type: artifact
+  - name: file_name
+    mediatype:
+      - string
+    type: parameter
+    userdata:
+      description: destination file name
+  - name: container_name
+    type: parameter
+    mediatype:
+      - string
+    userdata:
+      description: name of blob container
+  - name: account
+    type: parameter
+    mediatype:
+      - string
+    userdata:
+      description: azure storage account
+type: component
+implementation:
+  type: brick
+  container:
+    name: azure blob docker
+    image: ghcr.io/equinor/flowify-component-azure-blob:0.0.3
+    command:
+      - node
+      - ./src/index.js
+      - ops=upload
+      - auth_method=app
+    resources: {}
+  args:
+    - target:
+        type: artifact
+        prefix: upload_files=
+      source:
+        port: file_to_upload
+    - target:
+        type: parameter
+        prefix: file_upload_name=
+      source:
+        port: file_name
+    - source:
+        port: container_name
+      target:
+        type: parameter
+        prefix: container_name=
+        suffix: ''
+    - source:
+        port: account
+      target:
+        type: parameter
+        prefix: account=
+        suffix: ''
