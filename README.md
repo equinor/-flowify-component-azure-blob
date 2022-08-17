@@ -2,6 +2,11 @@
 
 [Flowify](https://flowify-docs.equinor.com/) componenet for downloading and uploading files from/to Azure Blob Storage
 
+## Using this component in flowify
+Copy the flowify_download_manifest.yml or flowify_upload_manifest.yml and paste them in the component builder
+
+--------------------------
+## To use the docker image separately
 Set the following environmental variables
 
 Variables denoted with * can be set by run arguments by setting them as lowercase

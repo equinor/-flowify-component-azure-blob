@@ -1,0 +1,80 @@
+name: download file from Azure Blob store
+modifiedBy: 
+uid: 
+version:
+  current: 0
+  previous:
+    uid: 00000000-0000-0000-0000-000000000000
+timestamp: 
+inputs:
+  - name: CLIENT_ID
+    mediatype:
+      - env_secret
+    type: env_secret
+  - name: CLIENT_SECRET
+    mediatype:
+      - env_secret
+    type: env_secret
+  - name: TENANT_ID
+    mediatype:
+      - env_secret
+    type: env_secret
+  - name: file_path
+    mediatype:
+      - string
+    type: parameter
+    userdata:
+      description: path of file on blob container to download
+  - name: container_name
+    type: parameter
+    mediatype:
+      - string
+    userdata:
+      description: name of blob container
+  - name: account
+    type: parameter
+    mediatype:
+      - string
+    userdata:
+      description: azure storage account
+type: component
+implementation:
+  type: brick
+  container:
+    name: azure blob docker
+    image: ghcr.io/equinor/flowify-component-azure-blob:0.0.3
+    command:
+      - node
+      - ./src/index.js
+      - ops=download
+      - auth_method=app
+    resources: {}
+  args:
+    - source:
+        port: file_path
+      target:
+        type: parameter
+        prefix: dir_filter=
+        suffix: ''
+    - source:
+        port: container_name
+      target:
+        type: parameter
+        prefix: container_name=
+        suffix: ''
+    - source:
+        port: account
+      target:
+        type: parameter
+        prefix: account=
+        suffix: ''
+  results:
+    - source:
+        file: /tmp/flowify
+      target:
+        port: downloaded_file
+outputs:
+  - name: downloaded_file
+    type: artifact
+    mediatype:
+      - file
