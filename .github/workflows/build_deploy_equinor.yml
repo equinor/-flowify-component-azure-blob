@@ -41,7 +41,14 @@ jobs:
           registry: auroradevacr.azurecr.io
           username: ${{ secrets.AZURE_CLIENT_ID }}
           password: ${{steps.fetchSecrets.outputs.AURORA-ACR}}
-
+          
+      - name: Azure Container Registry login
+        uses: docker/login-action@v1
+        with:
+          registry: auroraprodacr.azurecr.io
+          username: ${{ secrets.AZURE_CLIENT_ID }}
+          password: ${{steps.fetchSecrets.outputs.AURORA-ACR}}
+          
       - name: Initialize BuildX
         uses: docker/setup-buildx-action@v1
           
@@ -53,4 +60,6 @@ jobs:
           push: true
           tags: |
             auroradevacr.azurecr.io/flowify/flowify-componenet-azure-blob:${{ env.DOCKER_IMG_VERSION }}
-            auroradevacr.azurecr.io/flowify/flowify-componenet-azure-blob:${{ env.SHORT_SHA}}          
+            auroradevacr.azurecr.io/flowify/flowify-componenet-azure-blob:${{ env.SHORT_SHA}}    
+            auroraprodacr.azurecr.io/flowify/flowify-componenet-azure-blob:${{ env.DOCKER_IMG_VERSION }}
+            auroraprodacr.azurecr.io/flowify/flowify-componenet-azure-blob:${{ env.SHORT_SHA}}          
